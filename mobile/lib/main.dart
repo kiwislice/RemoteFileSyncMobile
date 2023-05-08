@@ -65,8 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     LocalFolder folder = LocalFolder(folderPath);
-    if (!folder.exists()) {
-      debugPrint('folder not exists');
+    if (!await folder.exists()) {
+      debugPrint('folder not exists: $folderPath');
       return;
     }
 
@@ -83,7 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       for (String path in remoteFs) {
         if (binarySearch(localFs, path) < 0) {
-          folder.downloadFile('http://$ip:$httpPort/$path', path);
+          Uri url = Uri.parse('http://$ip:$httpPort/download/').resolve(path);
+          await folder.downloadFile(url, path);
         }
       }
     } catch (e) {

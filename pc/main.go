@@ -28,7 +28,7 @@ func usage() {
 	doc := `
 遠端檔案同步PC端
 
-remotefilesync.exe <資料夾路徑> [<args>]
+remotefilesync.exe [<args>]
 	`
 	fmt.Println(doc)
 	flag.PrintDefaults()
@@ -42,6 +42,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	fmt.Printf("開放資料夾: %v\n", dirPath)
 
 	go grpcserver.Run(dirFs)
 	httpserver.Run(dirFs)

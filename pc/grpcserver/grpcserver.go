@@ -43,6 +43,7 @@ func init() {
 // server is used to implement helloworld.GreeterServer.
 type server struct {
 	pb.UnimplementedGreeterServer
+	dirFs *core.DirFileSystem
 }
 
 // SayHello implements helloworld.GreeterServer
@@ -56,7 +57,11 @@ func (s *server) SayHelloAgain(ctx context.Context, in *pb.HelloRequest) (*pb.He
 }
 
 func (s *server) GetAllFiles(ctx context.Context, in *pb.Empty) (*pb.FilesReply, error) {
-	return &pb.FilesReply{Files: []string{"Hello again "}}, nil
+	fs := make([]string, 0, 256)
+	for f := range s.dirFs.Files() {
+		fs = append(fs, f)
+	}
+	return &pb.FilesReply{Files: fs}, nil
 }
 
 func Run(dirFs *core.DirFileSystem) {
@@ -66,7 +71,7 @@ func Run(dirFs *core.DirFileSystem) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &server{})
+	pb.RegisterGreeterServer(s, &server{dirFs: dirFs})
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

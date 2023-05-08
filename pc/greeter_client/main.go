@@ -64,4 +64,10 @@ func main() {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %s", r.GetMessage())
+
+	filesReply, err := c.GetAllFiles(ctx, &pb.Empty{})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %s", filesReply.GetFiles())
 }

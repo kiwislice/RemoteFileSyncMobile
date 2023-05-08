@@ -23,6 +23,7 @@ func (x *DirFileSystem) Files() <-chan string {
 				if err != nil {
 					return err
 				}
+				relPath = filepath.ToSlash(relPath)
 				ch <- relPath
 			}
 			return nil

@@ -32,23 +32,24 @@ class LocalFolder {
 
   const LocalFolder(this.folderPath);
 
-  bool exists() {
-    return false;
+  Future<bool> exists() async {
+    return await Directory(folderPath).exists();
   }
 
   Future<List<String>> getFiles() {
     return _getFiles(folderPath);
   }
 
-  Future<void> downloadFile(String url, String savePath) async {
+  Future<void> downloadFile(Uri url, String savePath) async {
     debugPrint('downloadFile $url -> $savePath');
-    var request = http.Request('GET', Uri.parse(url));
+    var request = http.Request('GET', url);
     var response = await request.send();
 
     final fullPath = path.join(folderPath, savePath);
     debugPrint('downloadFile fullPath = $fullPath');
-    var file = File(fullPath);
 
+    Directory(fullPath).parent.createSync(recursive: true);
+    var file = File(fullPath);
     await response.stream.pipe(file.openWrite());
   }
 }
