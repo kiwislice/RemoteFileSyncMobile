@@ -9,16 +9,27 @@ import 'package:path/path.dart' as path;
 /// 選擇資料夾(限定SD card內)
 Future<String?> pickFolder(BuildContext context) async {
   // Directory? externalStorageDirectory = await getExternalStorageDirectory();
-  Directory sdcard = Directory.fromUri(Uri.directory('/storage/emulated/0/'));
+  // Directory sdcard = Directory.fromUri(Uri.directory('/storage/emulated/0/'));
+  Directory sdcard = Directory.fromUri(Uri.directory('/storage/'));
+
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.manageExternalStorage,
+    Permission.storage,
+  ].request();
 
   // debugPrint('externalStorageDirectory=$externalStorageDirectory');
   debugPrint('dir=$sdcard');
+  PermissionStatus? manageExternalStorage =
+      statuses[Permission.manageExternalStorage];
+  PermissionStatus? storage = statuses[Permission.storage];
+  debugPrint('manageExternalStorage=$manageExternalStorage, storage=$storage');
 
   Directory dirRoot = sdcard; // externalStorageDirectory ?? dir;
   String? selectedDirectory = await FilesystemPicker.openDialog(
     context: context,
     rootDirectory: sdcard,
-    rootName: 'SD card',
+    // rootName: 'SD card',
+    rootName: 'storage',
     title: '選擇資料夾',
     requestPermission: () => Permission.storage.request().isGranted,
   );
@@ -51,6 +62,25 @@ class LocalFolder {
     Directory(fullPath).parent.createSync(recursive: true);
     var file = File(fullPath);
     await response.stream.pipe(file.openWrite());
+  }
+
+  Future<void> deleteFile(String subpath) async {
+    debugPrint('deleteFile $subpath');
+    final fullPath = path.join(folderPath, subpath);
+    debugPrint('deleteFile fullPath = $fullPath');
+    File(fullPath).deleteSync();
+  }
+
+  Future<void> createTxtFile(String savePath, String text) async {
+    debugPrint('createTxtFile $savePath');
+    final fullPath = path.join(folderPath, savePath);
+    debugPrint('createTxtFile fullPath = $fullPath');
+
+    Directory(fullPath).parent.createSync(recursive: true);
+    var file = File(fullPath);
+    await file.create();
+    // 寫入檔案內容
+    await file.writeAsString(text);
   }
 }
 
